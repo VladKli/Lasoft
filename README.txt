@@ -1,0 +1,1 @@
+Approved solutions will be added to the master branch

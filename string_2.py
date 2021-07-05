@@ -5,15 +5,16 @@ string = input('Print a string, please: ')
 symbol = input('Print a symbol, please: ')
 
 
-def find_result(text, symb):
-    new_str = ''
-    result = ''
-    for el in text:
-        if el == symb:
-            new_str = text.replace(el, symb.upper())
-    index = new_str.rfind(symb.upper())
-    result = new_str[0:index]
+def change_to_upper_case_by_symbol(string, symb):
+    new_str = string.replace(symb, symb.upper())
+    return new_str
+
+
+def remove_by_last_symbol(string, symb):
+    index = string.rfind(symb)
+    result = string[0:index]
     return result
 
 
-print(find_result(string, symbol))
+print(change_to_upper_case_by_symbol(string, symbol))
+print(remove_by_last_symbol(string, symbol))

@@ -6,31 +6,35 @@ string = input('Print a string, please: ')
 
 
 def make_statistic(text):
-
     letters_count = 0
-    lower = 0
-    upper = 0
-    digits_count = 0
-    punct = 0
-    spaces = 0
+    lower_letters_count = 0
+    upper_letters_count = 0
+    digits_letters_count = 0
+    symbol_letters_count = 0
+    spaces_letters_count = 0
 
     for letter in text:
         if letter.isalpha():
             letters_count += 1
             if letter.islower():
-                lower += 1
+                lower_letters_count += 1
             else:
-                upper += 1
+                upper_letters_count += 1
         elif letter.isdigit():
-            digits_count += 1
+            digits_letters_count += 1
         elif letter.isspace():
-            spaces += 1
+            spaces_letters_count += 1
         else:
-            punct += 1
+            symbol_letters_count += 1
 
-    print(f'Amount of symbols: {len(string)}, amount of letters: {letters_count}, lower register: {lower},'
-          f'upper register: {upper}, amount of digits: {digits_count}, punctuation symbols: {punct}, spaces: {spaces}')
+    return {'total number of characters': len(string),
+            'amount of letters': letters_count,
+            'amount of letter in lower case': lower_letters_count,
+            'amount of letter in upper case': upper_letters_count,
+            'amount of digits': digits_letters_count,
+            'amount of symbols': symbol_letters_count,
+            'amount of spaces': spaces_letters_count}
 
 
-make_statistic(string)
+print(make_statistic(string))
 

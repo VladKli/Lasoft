@@ -10,20 +10,16 @@
 
 MAX_STUDENTS = 3
 MAX_STUDENTS_IN_GROUP = 4
-RATING = 1
 
 
-# class Subject:
-#     def __init__(self, subject_name, teacher_name, student, group=[], mark=0, state_assessment=0):
-#         self.subject_name = subject_name
-#         self.teacher_name = teacher_name
-#         self.group = group
-#         self.mark = mark
-#         self.state_assessment = state_assessment
-#         self.student = student
-#
-#     def set_mark(self, student, mark):
-#         return ()
+class Subject:
+    def __init__(self, subject_name, teacher_name):
+        self.subject_name = subject_name
+        self.teacher_name = teacher_name
+
+    def __str__(self):
+        return f'{self.subject_name}, {self.teacher_name}'
+
 
 class Group:
 
@@ -39,17 +35,6 @@ class Group:
             self.students_in_group.append(student)
         else:
             print(f'The group {self.group_name} is full. Create new one, please.')
-
-    def learn_subject(self, subject_name, teacher_name, time='in time'):
-        self.subject_name = subject_name
-        self.teacher_name = teacher_name
-        self.time = time
-        if self.time == 'in time':
-            return f'Grope {self.group_name} successfully passed {self.subject_name} subject. {self.teacher_name} ' \
-                   f'rated everyone 5 points'
-        else:
-            return f'Group {self.group_name} successfully passed \'{self.subject_name}\' subject. {self.teacher_name} '\
-                   f'rated everyone 3 points'
 
     def __str__(self):
         string = f'The head man of the group \'{self.group_name}\' is{self.headman}and the group contains ' \
@@ -91,7 +76,7 @@ class DormitoryRoom:
 class Student:
 
     def __init__(self, surname, name, patronymic, student_card_number, day_of_birth, place_of_birth,
-                 address, gender, marital_status, grants, rating=0, hobbies=[]):
+                 address, gender, marital_status, grants, rating=0, hobbies=[], subjects={}):
 
         self.__surname = surname
         self.__name = name
@@ -104,23 +89,27 @@ class Student:
         self.marital_status = marital_status
         self.grants = grants
         self.hobbies = hobbies
+        self.subjects = subjects
         self.rating = rating
+
+    def learn_subject(self, subject, mark):
+        self.subjects[subject.subject_name] = [subject, mark]
+        return self.subjects[subject.subject_name]
+
+    def get_avg_rating(self):
+        a = []
+        for subject in self.subjects:
+            a.append(self.subjects[subject][1])
+        return sum(a)
 
     def get_hobby(self):
         return self.hobbies
-
-    def change_rating(self, mark):
-        self.rating += mark
-        return f'Student {self.__name} has rating {self.rating}'
-
-    def show_rating(self):
-        return self.rating
 
     def get_name(self):
         return self.__name
 
     def __str__(self):
-        return f' {self.__name} {self.rating} '
+        return f' {self.__name} {self.__surname} '
 
 
 p_1 = Student('Kli', 'Vla', 'Ole', '1', '07.10.1996', 'place of birth 1', 'Kiev 1', 'male', 'X', True)
@@ -131,14 +120,64 @@ p_5 = Student('Dmi', 'Lit', 'Ale', '5', '31.05.1997', 'place of birth 5', 'Kiev 
 p_6 = Student('Jul', 'Mel', 'Kir', '6', '25.12.1997', 'place of birth 6', 'Kiev 6', 'female', 'XX', True)
 p_7 = Student('Vas', 'Pup', 'Edu', '7', '01.01.1991', 'place of birth 7', 'Kiev 7', 'male', 'X', True)
 
+s_math = Subject('Math', 'Alina T.')
+s_read = Subject('Read', 'Alina T')
+s_eng = Subject('English', 'Irina D')
 
-r_1 = DormitoryRoom('31 a', [p_1, p_2, p_3])
-r_2 = DormitoryRoom('32 b', [p_4, p_5])
-r_3 = DormitoryRoom('33 c')
+p_1.learn_subject(s_math, 10)
+p_1.learn_subject(s_read, 7)
+p_1.learn_subject(s_eng, 8)
+p_1.rating = p_1.get_avg_rating()
 
-r_2.add_student_to_room(p_6)
+p_2.learn_subject(s_math, 1)
+p_2.learn_subject(s_read, 7)
+p_2.learn_subject(s_eng, 12)
+p_2.rating = p_2.get_avg_rating()
 
-r_3.add_student_to_room(p_7)
+p_3.learn_subject(s_math, 9)
+p_3.learn_subject(s_read, 9)
+p_3.learn_subject(s_eng, 0)
+p_3.rating = p_3.get_avg_rating()
+
+p_4.learn_subject(s_math, 11)
+p_4.learn_subject(s_read, 10)
+p_4.learn_subject(s_eng, 12)
+p_4.rating = p_4.get_avg_rating()
+
+p_5.learn_subject(s_math, 4)
+p_5.learn_subject(s_read, 3)
+p_5.learn_subject(s_eng, 4)
+p_5.rating = p_5.get_avg_rating()
+
+p_6.learn_subject(s_math, 9)
+p_6.learn_subject(s_read, 7)
+p_6.learn_subject(s_eng, 6)
+p_6.rating = p_6.get_avg_rating()
+
+p_7.learn_subject(s_math, 5)
+p_7.learn_subject(s_read, 5)
+p_7.learn_subject(s_eng, 3)
+p_7.rating = p_7.get_avg_rating()
+
+common_rating = dict()
+common_rating[p_1.get_name()] = p_1.rating
+common_rating[p_2.get_name()] = p_2.rating
+common_rating[p_3.get_name()] = p_3.rating
+common_rating[p_4.get_name()] = p_4.rating
+common_rating[p_5.get_name()] = p_5.rating
+common_rating[p_6.get_name()] = p_6.rating
+common_rating[p_7.get_name()] = p_7.rating
+
+print(sorted(common_rating.items(), key=lambda value: value[1], reverse=True))
+
+
+# r_1 = DormitoryRoom('31 a', [p_1, p_2, p_3])
+# r_2 = DormitoryRoom('32 b', [p_4, p_5])
+# r_3 = DormitoryRoom('33 c')
+
+# r_2.add_student_to_room(p_6)
+#
+# r_3.add_student_to_room(p_7)
 
 
 g_1 = Group('IT 121', p_1, [p_1, p_2, p_3, p_4])
@@ -147,28 +186,9 @@ g_2 = Group('IT 122', p_5, [p_5, p_6])
 
 g_2.add_student_to_group(p_7)
 
-# print(g_1)
-# print(g_2)
-# print(g_1)
+print(g_1)
+print(g_2)
+
 # print(r_1)
 # print(r_2)
 # print(r_3)
-
-p_1.change_rating(3)
-p_2.change_rating(5)
-p_3.change_rating(1)
-p_4.change_rating(2)
-p_5.change_rating(7)
-p_7.change_rating(9)
-p_6.change_rating(10)
-
-rate = [p_1, p_2, p_3, p_4, p_5, p_6, p_7]
-
-for el in rate:
-
-    print(f'{el.get_name()} - {el.show_rating()}')
-
-
-# print(g_1.learn_subject('math', 'Nat A.L.', ''))
-#
-# print(p_1)

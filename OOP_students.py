@@ -9,7 +9,7 @@
 # Список студентів які мають рейтинг від X до Y,
 
 MAX_STUDENTS = 3
-MAX_STUDENTS_IN_GROUP = 4
+MAX_STUDENTS_IN_GROUP = 5
 
 
 class Subject:
@@ -27,24 +27,34 @@ class Group:
         self.group_name = group_name
         self.headman = headman
         self.students_in_group = students_in_group
-        if len(self.students_in_group) > MAX_STUDENTS_IN_GROUP:
-            print(f'Max number of students in a group is {MAX_STUDENTS_IN_GROUP}')
+        if len(self.students_in_group) < MAX_STUDENTS_IN_GROUP:
+            self.students_in_group = students_in_group
+        else:
+            self.students_in_group = []
+            raise Exception(f'Max number of students in a group is {MAX_STUDENTS_IN_GROUP}')
 
     def add_student_to_group(self, student):
         if len(self.students_in_group) < MAX_STUDENTS_IN_GROUP+1:
             self.students_in_group.append(student)
         else:
-            print(f'The group {self.group_name} is full. Create new one, please.')
+            raise Exception('Max number of students in a group is {MAX_STUDENTS_IN_GROUP}')
+
+    def remove_student_from_group(self, student):
+        if student in self.students_in_group:
+            self.students_in_group.remove(student)
+            print(f'Student {student.get_name()} was removed from the group {self.group_name}')
+            return self.students_in_group
+        else:
+            raise Exception('There is no such student in the group.')
 
     def __str__(self):
-        string = f'The head man of the group \'{self.group_name}\' is{self.headman}and the group contains ' \
-              f'follow students: '
-        if len(self.students_in_group) == 0:
-            return 'The group is empty'
-        elif len(self.students_in_group) <= MAX_STUDENTS_IN_GROUP:
-            for el in self.students_in_group:
-                string += f'\n - {el}'
-            return string
+        string = 'The group is empty'
+        if len(self.students_in_group) > 0:
+            string = f'The head man of the group {self.group_name} is{self.headman}' \
+                     f'and the group contains follow students: '
+        for el in self.students_in_group:
+            string += f'\n - {el}'
+        return string
 
 
 class DormitoryRoom:
@@ -188,6 +198,9 @@ g_2.add_student_to_group(p_7)
 
 print(g_1)
 print(g_2)
+
+g_1.remove_student_from_group(p_2)
+print(g_1)
 
 # print(r_1)
 # print(r_2)

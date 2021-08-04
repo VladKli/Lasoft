@@ -1,3 +1,6 @@
+from datetime import date, timedelta
+
+
 class Department:
     def __init__(self, department_name, cod, manager_name, employees=[]):
         self.department_name = department_name
@@ -27,9 +30,10 @@ class Employee:
 
     DOUBLE = 2
     TRIPLE = 3
+    DEFAULT_WORK_HOURS_PER_WEEK = 40
 
     def __init__(self, position, personal_number, name, surname, father_name, pp_data, dob, place_of_birth, address,
-                 salary=0, vacation=False):
+                 hire_date, salary=0, vacation=False):
         self.position = position
         self.personal_number = personal_number
         self.name = name
@@ -39,25 +43,34 @@ class Employee:
         self.dob = dob
         self.place_of_birth = place_of_birth
         self.address = address
-        self.salary = int(salary)
-        self.vacation = vacation
+        self.hire_date = hire_date
+        self.base_salary = int(salary)
+        self.vacation = False
+        self.work_hours_per_week = Employee.DEFAULT_WORK_HOURS_PER_WEEK
+        self.vacations = {'date_start': date(1111, 1, 1), 'date_end': date(1111, 1, 1)}
+
+    def add_work_hour_per_day(self, hours):
+        return self.work_hours_per_week.__add__(hours)
 
     def get_name(self):
         return f'{self.name} {self.surname}'
 
     def credit_main_salary(self, working_hours, tariff_per_hour):
-        self.salary += (int(working_hours) * int(tariff_per_hour))
-        return self.salary
+        self.base_salary += (int(working_hours) * int(tariff_per_hour))
+        return self.base_salary
 
     def credit_bonus_part(self, tariff_per_hour, double_hours_amount=0, triple_hours_amount=0):
-        self.salary += (double_hours_amount * Employee.DOUBLE * int(tariff_per_hour)) + \
+        self.base_salary += (double_hours_amount * Employee.DOUBLE * int(tariff_per_hour)) + \
                        (triple_hours_amount * Employee.TRIPLE * int(tariff_per_hour))
-        return self.salary
+        return self.base_salary
 
     def get_salary(self):
-        return self.salary
+        return self.base_salary
 
-    def get_vacation(self):
+    def add_work_hours_per_week(self, hours):
+        self.work_hours_per_week.__add__(hours)
+
+    def get_vacation(self, date_start, date_end):
         return self.vacation
 
     def set_vacation(self):
@@ -101,30 +114,51 @@ developer = Position('Developer', '10')
 recruiter = Position('Recruiter', '8')
 head_of_fin_dep = Position('Head of financial department', '15')
 
-emp_1 = Employee(developer.name, '855', 'Vla', 'Kli', 'Ole', '123EN321', '07.10.1996', 'smt. Rov', 'Kiev')
-emp_2 = Employee(recruiter.name, '899', 'Liz', 'Vaz', 'And', '188EN921', '22.05.1997', 'Kiev', 'Kiev')
-emp_3 = Employee(head_of_fin_dep.name, '1', 'Sve', 'Pri', 'Ale', '123EN321', '20.06.1975', 'smt. Rov', 'Kiev')
-emp_4 = Employee(developer.name, '147', 'Vlad', 'Sho', 'Ser', '199EN321', '29.05.1996', 'Kiev', 'Kiev')
-
-fin_dep = Department('Financial department', '123 456', emp_3.get_name(), [emp_1.get_name(), emp_2.get_name()])
-
-fin_dep.remove_employee(emp_1.get_name())
+emp_1 = Employee(developer.name, '855', 'Vla', 'Kli', 'Ole', '123EN321', '07.10.1996', 'smt. Rov', 'Kiev', date(2020, 8, 4))
+emp_2 = Employee(recruiter.name, '899', 'Liz', 'Vaz', 'And', '188EN921', '22.05.1997', 'Kiev', 'Kiev', date(2020, 1, 1))
+emp_3 = Employee(head_of_fin_dep.name, '1', 'Sve', 'Pri', 'Ale', '123EN321', '20.06.1975', 'smt. Rov', 'Kiev', date(2020, 1, 1))
+emp_4 = Employee(developer.name, '147', 'Vlad', 'Sho', 'Ser', '199EN321', '29.05.1996', 'Kiev', 'Kiev', date(2020, 1, 1))
 
 
-emp_1.credit_main_salary(180, developer.get_tariff())
+# print(date.today() - timedelta(days=365))
 
-emp_1.credit_bonus_part(developer.get_tariff(), 1, 1)
-
-emp_1.set_vacation()
-
-emp_vacation = [emp_1.get_vacation(), emp_4.get_vacation()]
+list_of_employee = [emp_1, emp_2, emp_3, emp_4]
 
 
-counter = 0
+def set_vacation(employee, vacation_period=[], list_of_employees=[]):
+    if employee.hire_date <= (date.today() - timedelta(days=365)):
+        exist_employees = set(list_of_employees).difference(employee)
+        percent = 0
+        for emp in exist_employees:
+            if vacation_period[0] <= (emp.vacations['date_start'] or emp.vacations['date_end']) <= vacation_period[1]:
+                percent += 1
+    employee.vacations['date_start'] = vacation_period[0]
+    employee.vacations['date_end'] = vacation_period[1]
+    return employee.vacations
 
-for emp in emp_vacation:
-    if emp:
-        counter += 1
-    percent = (counter / len(emp_vacation)) * 100
 
-print(percent)
+print(set_vacation(emp_1, [date(2021, 1, 1), date(2021, 12, 1)], list_of_employee))
+
+
+# fin_dep = Department('Financial department', '123 456', emp_3.get_name(), [emp_1.get_name(), emp_2.get_name()])
+#
+# fin_dep.remove_employee(emp_1.get_name())
+#
+#
+# emp_1.credit_main_salary(180, developer.get_tariff())
+#
+# emp_1.credit_bonus_part(developer.get_tariff(), 1, 1)
+#
+# emp_1.set_vacation()
+#
+# emp_vacation = [emp_1.get_vacation(), emp_4.get_vacation()]
+
+
+# counter = 0
+#
+# for emp in emp_vacation:
+#     if emp:
+#         counter += 1
+#     percent = (counter / len(emp_vacation)) * 100
+#
+# print(percent)

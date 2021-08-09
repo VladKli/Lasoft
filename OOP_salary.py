@@ -31,6 +31,7 @@ class Employee:
     DOUBLE = 2
     TRIPLE = 3
     DEFAULT_WORK_HOURS_PER_WEEK = 40
+    VACATION_DAYS = 28
 
     def __init__(self, position, personal_number, name, surname, father_name, pp_data, dob, place_of_birth, address,
                  hire_date, salary=0, vacation=False):
@@ -47,13 +48,18 @@ class Employee:
         self.base_salary = int(salary)
         self.vacation = False
         self.work_hours_per_week = Employee.DEFAULT_WORK_HOURS_PER_WEEK
-        self.vacations = {'date_start': date(1111, 1, 1), 'date_end': date(1111, 1, 1)}
+        self.vacations = []
+
+        # {'date_start': date(1111, 1, 1), 'date_end': date(1111, 1, 1)}
 
     def add_work_hour_per_day(self, hours):
         return self.work_hours_per_week.__add__(hours)
 
     def get_name(self):
         return f'{self.name} {self.surname}'
+
+    # def __hash__(self):
+    #     return hash((self.name, self.surname))
 
     def credit_main_salary(self, working_hours, tariff_per_hour):
         self.base_salary += (int(working_hours) * int(tariff_per_hour))
@@ -70,27 +76,11 @@ class Employee:
     def add_work_hours_per_week(self, hours):
         self.work_hours_per_week.__add__(hours)
 
-    def get_vacation(self, date_start, date_end):
-        return self.vacation
-
-    def set_vacation(self):
-        self.vacation = True
-        return self.vacation
-
-    def finish_vacation(self):
-        self.vacation = False
-        return self.vacation
-
-    # def get_percent_of_vacation_in_dep(self, department_name, employee):
-    #     counter = 0
-    #     percent = 0
-    #     for emp in employee:
-    #         if self.vacation:
-    #             counter += 1
-    #             percent = counter % len(employee) * 100
-    #             return percent
-    #         else:
-    #             return counter
+    def get_vacation(self):
+        if self.hire_date <= (date.today() - timedelta(days=365)):
+            return True
+        else:
+            raise Exception('Current employee has not worked at company 1 year yet.')
 
     def __str__(self):
         return f'{self.position}, {self.personal_number}, {self.name} {self.surname} {self.father_name}, ' \
@@ -117,27 +107,40 @@ head_of_fin_dep = Position('Head of financial department', '15')
 emp_1 = Employee(developer.name, '855', 'Vla', 'Kli', 'Ole', '123EN321', '07.10.1996', 'smt. Rov', 'Kiev', date(2020, 8, 4))
 emp_2 = Employee(recruiter.name, '899', 'Liz', 'Vaz', 'And', '188EN921', '22.05.1997', 'Kiev', 'Kiev', date(2020, 1, 1))
 emp_3 = Employee(head_of_fin_dep.name, '1', 'Sve', 'Pri', 'Ale', '123EN321', '20.06.1975', 'smt. Rov', 'Kiev', date(2020, 1, 1))
-emp_4 = Employee(developer.name, '147', 'Vlad', 'Sho', 'Ser', '199EN321', '29.05.1996', 'Kiev', 'Kiev', date(2020, 1, 1))
+emp_4 = Employee(developer.name, '147', 'Vlad', 'Sho', 'Ser', '199EN321', '29.05.1996', 'Kiev', 'Kiev', date(2021, 1, 1))
 
 
 # print(date.today() - timedelta(days=365))
 
 list_of_employee = [emp_1, emp_2, emp_3, emp_4]
 
+# print(emp_4.get_vacation())
 
-def set_vacation(employee, vacation_period=[], list_of_employees=[]):
-    if employee.hire_date <= (date.today() - timedelta(days=365)):
-        exist_employees = set(list_of_employees).difference(employee)
-        percent = 0
-        for emp in exist_employees:
-            if vacation_period[0] <= (emp.vacations['date_start'] or emp.vacations['date_end']) <= vacation_period[1]:
-                percent += 1
-    employee.vacations['date_start'] = vacation_period[0]
-    employee.vacations['date_end'] = vacation_period[1]
-    return employee.vacations
+emp_1.vacations = ({'date_start': date(2021, 1, 1), 'date_end': date(2021, 1, 25)})
+emp_2.vacations = ({'date_start': date(2021, 1, 2), 'date_end': date(2021, 1, 5)})
+emp_3.vacations = ({'date_start': date(1, 1, 1), 'date_end': date(1, 12, 1)})
+emp_4.vacations = ({'date_start': date(1, 1, 1), 'date_end': date(1, 12, 1)})
 
 
-print(set_vacation(emp_1, [date(2021, 1, 1), date(2021, 12, 1)], list_of_employee))
+def set_vacation(employee, list_of_employees=[]):
+    if employee.get_vacation() and (employee.vacations['date_end'] - employee.vacations['date_start']) \
+            <= timedelta(days=28):
+        list_of_employees.remove(employee)
+        flag = False
+        count_emp = 0
+        for emp in list_of_employees:
+            if employee.vacations['date_start'] <= emp.vacations['date_start'] or emp.vacations['date_end'] \
+                    <= employee.vacations['date_end']:
+                flag = True
+            if flag:
+                count_emp += 1
+        return f'{100 - (count_emp / len(list_of_employees) * 100)}'
+    else:
+        raise Exception('It is not possible to take a vacation.')
+
+
+print(set_vacation(emp_1, list_of_employee))
+print(list_of_employee)
 
 
 # fin_dep = Department('Financial department', '123 456', emp_3.get_name(), [emp_1.get_name(), emp_2.get_name()])

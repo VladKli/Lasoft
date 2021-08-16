@@ -74,6 +74,14 @@ class Employee:
             days += (_v['date_end'] - _v['date_start']).days
         return days
 
+    def get_vacations_dates_range(self):
+        emp_vacation_dates_range = []
+        for el in self.vacations:
+            one_vacation_days_range = [el['date_start'] + timedelta(days=x) for x in range((el['date_end'] - el['date_start']).days + 1)]
+            for dates in one_vacation_days_range:
+                emp_vacation_dates_range.append(dates)
+        return emp_vacation_dates_range
+
     def set_vacation(self, date_start, date_end):
         new_days = (date_end - date_start).days
         if self.hire_date <= (date.today() - timedelta(days=365)) and self.get_vacation_days() + new_days <= self.VACATION_DAYS:
@@ -134,47 +142,40 @@ emp_4 = Employee(developer.name, '147', 'Vlad', 'Sho', 'Ser', '199EN321', '29.05
 
 list_of_employee = [emp_1, emp_2, emp_3, emp_4]
 
-# emp_1.set_vacation(date(2021, 1, 1), date(2021, 1, 25))
-# emp_2.vacations = ({'date_start': date(2021, 1, 2), 'date_end': date(2021, 1, 5)})
-# emp_3.vacations = ({'date_start': date(1, 1, 1), 'date_end': date(1, 12, 1)})
-# emp_4.vacations = ({'date_start': date(1, 1, 1), 'date_end': date(1, 12, 1)})
-
-# print(emp_2.vacations[0])
-# print(emp_1.get_vacation_days())
-
 
 def set_vacation(employee, date_start, date_end, list_of_employees=[]):
-    count = []
+    count = 0
+    employee_vacation_days = [date_start + timedelta(days=x) for x in range((date_end - date_start).days + 1)]
     for emp in list_of_employees:
-        for el in emp.get_vacation_dates():
-            if date_start <= el <= date_end:
+        for days in employee_vacation_days:
+            if days in emp.get_vacations_dates_range():
                 emp.vacation_helper = True
-        count.append(emp.vacation_helper)
-    percentage = ((sum(count) + 1) / len(list_of_employees) * 100)
+        if emp.vacation_helper == True:
+            count += 1
+    percentage = ((count + 1) / len(list_of_employees) * 100)
     if percentage <= 30:
         employee.set_vacation(date_start, date_end)
     else:
         raise Exception(f'It is not possible to take a vacation for {employee.name}.')
 
 
-set_vacation(emp_1,  date(2021, 1, 1), date(2021, 1, 25), list_of_employee)
-print(emp_1.vacations)
-
-set_vacation(emp_2,  date(2021, 2, 1), date(2021, 2, 20), list_of_employee)
-print(emp_2.vacations)
-
-set_vacation(emp_3,  date(2021, 5, 5), date(2021, 5, 22), list_of_employee)
-print(emp_3.vacations)
-
-set_vacation(emp_4,  date(2021, 5, 5), date(2021, 5, 22), list_of_employee)
+set_vacation(emp_1, date(2021, 8, 22), date(2021, 9, 11), list_of_employee)
+print(f' emp 1 {emp_1.vacations}')
+#
+set_vacation(emp_2, date(2021, 8, 28), date(2021, 8, 30), list_of_employee)
+print(f' emp 2 {emp_2.vacations}')
 
 
-
-
-
-
-# print(set_vacation(emp_1, list_of_employee))
-# print(list_of_employee)
+# set_vacation(emp_1,  date(2021, 1, 1), date(2021, 1, 25), list_of_employee)
+# print(emp_1.vacations)
+#
+# set_vacation(emp_2,  date(2021, 2, 1), date(2021, 2, 20), list_of_employee)
+# print(emp_2.vacations)
+#
+# set_vacation(emp_3,  date(2021, 5, 5), date(2021, 5, 22), list_of_employee)
+# print(emp_3.vacations)
+# #
+# set_vacation(emp_4,  date(2021, 5, 5), date(2021, 5, 22), list_of_employee)
 
 
 

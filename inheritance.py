@@ -2,9 +2,8 @@ from datetime import date
 
 
 class Product:
-    def __init__(self, type_of_good, product_type, product_name, price, expiration, quantity=1, defective=False,
+    def __init__(self, product_type, product_name, price, expiration, quantity=1, defective=False,
                  defective_amount=0):
-        self.type_of_good = type_of_good
         self.product_type = product_type
         self.product_name = product_name
         self._price = float(price)
@@ -82,17 +81,14 @@ class ProductManagement:
 
     def get_goods_arrived(self):
         self.arrived.append(self.product.quantity)
-        print(f'{self.product.product_type} in amount {self.product.quantity} items were arrived')
         return sum(self.arrived)
 
     def sell_goods(self, count):
         self.product._quantity -= int(count)
         self.sold.append(count)
-        print(f'Were sold {count} items of {self.product.product_type}. Available amount is {self.product._quantity}')
         return self.product.quantity
 
     def get_written_off_goods(self):
-        print(f'{self.product.defective_amount} items of {self.product.product_type} were written off')
         return self.product.defective_amount
 
     def __str__(self):
@@ -101,22 +97,94 @@ class ProductManagement:
                f'{self.product._quantity}'
 
 
-bread = Product('Food', 'bread', 'baton', '55', date(2021, 8, 25), quantity=5, defective=True)
-shampoo = Product('Household chemicals', 'shampoo', 'clear hair', '99.99', date(2021, 12, 25), quantity=10)
-meat = Product('Perishable products', 'meat', 'chicken thighs', '124', date(2021, 12, 29))
-alcohol = Product('Excise products', 'vine', 'red semi sweet', '255', date(2022, 1, 1))
-lighter = Product('Flammable products', 'lighter', 'clipper', '20', date(2023, 1, 1))
-plate = Product('Breakable products', 'plate', 'white plate', '59', date(2023, 1, 1))
+class Food(Product):
+    def __init__(self, product_type, product_name, price, expiration, quantity=1, defective=False,
+                 defective_amount=0, highest_sort=False):
+        super().__init__(product_type, product_name, price, expiration, quantity, defective, defective_amount)
+        self.highest_sort = highest_sort
+
+    @property
+    def sort(self):
+        return self.highest_sort
+
+    @sort.setter
+    def sort(self, boolean):
+        self.highest_sort = boolean
+
+
+class HouseholdChemicals(Product):
+    def __init__(self, product_type, product_name, price, expiration, quantity=1, defective=False,
+                 defective_amount=0, harming_goods=False):
+        super().__init__(product_type, product_name, price, expiration, quantity, defective, defective_amount)
+        self.harming_goods = harming_goods
+
+
+class PerishableProducts(Product):
+
+    def set_sale(self):
+        self.price *= 90
+        return self.price
+
+
+class ExciseProducts(Product):
+    def __init__(self, product_type, product_name, price, expiration, amount_consignments_of_good, quantity=1,
+                 defective=False, defective_amount=0):
+        super().__init__(product_type, product_name, price, expiration, quantity, defective, defective_amount)
+        self.amount_consignments_of_good = amount_consignments_of_good
+        self.quantity *= (amount_consignments_of_good*10-1)
+
+
+class FlammableProducts(Product):
+    def __init__(self, product_type, product_name, price, expiration, quantity=1, defective=False,
+                 defective_amount=0, message='The goods are flammable. Be careful'):
+        super().__init__(product_type, product_name, price, expiration, quantity, defective, defective_amount)
+        self.message = print(message)
+
+
+class BreakableProducts(Product):
+    def __init__(self, product_type, product_name, price, expiration, quantity=1, defective=False,
+                 defective_amount=0, damaged=0):
+        super().__init__(product_type, product_name, price, expiration, quantity, defective, defective_amount)
+        self.damaged = damaged
+        self._quantity -= damaged
+
+
+bread = Product('bread', 'baton', '55', date(2021, 8, 25), quantity=5, defective=True)
+shampoo = Product('shampoo', 'clear hair', '99.99', date(2021, 12, 25), quantity=10)
+meat = Product('meat', 'chicken thighs', '124', date(2021, 12, 29))
+alcohol = Product('vine', 'red semi sweet', '255', date(2022, 1, 1))
+lighter = Product('lighter', 'clipper', '20', date(2023, 1, 1))
+plate = Product('plate', 'white plate', '59', date(2023, 1, 1))
 
 bread_management = ProductManagement(bread)
 shampoo_management = ProductManagement(shampoo)
 
-print(shampoo_management.get_goods_arrived())
+# print(shampoo_management.get_goods_arrived())
 
 shampoo_management.sell_goods(5)
-shampoo_management.sell_goods(2)
 shampoo.defective_amount = 1
 
-print(shampoo_management)
+# print(shampoo_management)
 
+# product_type, product_name, price, expiration, quantity=1, defective=False, defective_amount=0)
 
+cheese = Food('cheese', 'bri', '47.95', date(2021, 8, 29))
+
+# print(cheese.highest_sort)
+# cheese.highest_sort = True
+# print(cheese.highest_sort)
+
+# gas_bottle = FlammableProducts('gas_bottle', 'AAA-79', '249.99', date(2025, 1, 1), quantity=3)
+
+vine = ExciseProducts('vine', 'Moet', '1790', date(2022, 1, 1), 2)
+
+# print(vine.quantity)
+
+vase = BreakableProducts('vase', 'deep vase', '179.9', date(2030, 1, 1), quantity=5, damaged=4)
+
+# print(vase.quantity)
+
+eggs = PerishableProducts('egg', 'chicken eggs', '2.15', date(2021, 8, 22))
+
+# eggs.set_sale()
+# print(eggs.price)

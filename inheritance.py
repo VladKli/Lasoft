@@ -4,12 +4,12 @@ from datetime import date
 class Product:
     def __init__(self, product_type, product_name, price, expiration, quantity=1, defective=False,
                  defective_amount=0):
-        self.product_type = product_type
-        self.product_name = product_name
+        self._product_type = product_type
+        self._product_name = product_name
         self._price = float(price)
         self._quantity = int(quantity)
         self._defective = defective
-        self.expiration = expiration
+        self._expiration = expiration
         self._defective_amount = defective_amount
 
     @property
@@ -33,7 +33,7 @@ class Product:
 
     @property
     def is_expired(self):
-        if self.expiration >= date.today():
+        if self._expiration >= date.today():
             print('The product is in order.')
         else:
             raise Expired
@@ -55,7 +55,8 @@ class Product:
         self._quantity -= int(amount)
 
     def __str__(self):
-        return f'{self.product_name}, {self.price}, {self.quantity}, {self.defective}'
+        return f'{self._product_type}, {self._product_name}, {self.price}, {self._expiration}, {self.quantity}, ' \
+               f'{self._defective}, {self.defective_amount}'
 
 
 class NotAvailable(Exception):
@@ -84,7 +85,7 @@ class ProductManagement:
         return sum(self.arrived)
 
     def sell_goods(self, count):
-        self.product._quantity -= int(count)
+        self.product.quantity = self.product.quantity - int(count)
         self.sold.append(count)
         return self.product.quantity
 
@@ -94,7 +95,7 @@ class ProductManagement:
     def __str__(self):
         return f'Were arrived {sum(self.arrived)} items of {self.product.product_type}. ' \
                f'{self.product.defective_amount} were written off. Were sold {sum(self.sold)}. Current quantity is ' \
-               f'{self.product._quantity}'
+               f'{self.product.quantity}'
 
 
 class Food(Product):
@@ -121,17 +122,29 @@ class HouseholdChemicals(Product):
 
 class PerishableProducts(Product):
 
-    def set_sale(self):
-        self.price *= 90
-        return self.price
+    @property
+    def price(self):
+        if self._expiration < date.today():
+            self._price *= 90
+        return self._price
 
 
 class ExciseProducts(Product):
+
+    ONE_CONSIGNMENT = 10
+
     def __init__(self, product_type, product_name, price, expiration, amount_consignments_of_good, quantity=1,
                  defective=False, defective_amount=0):
         super().__init__(product_type, product_name, price, expiration, quantity, defective, defective_amount)
         self.amount_consignments_of_good = amount_consignments_of_good
-        self.quantity *= (amount_consignments_of_good*10-1)
+
+    @property
+    def quantity(self):
+        if self._quantity == 0:
+            raise NotAvailable
+        else:
+            self._quantity = self._quantity * (self.amount_consignments_of_good * ExciseProducts.ONE_CONSIGNMENT)
+            return self._quantity
 
 
 class FlammableProducts(Product):
@@ -146,7 +159,14 @@ class BreakableProducts(Product):
                  defective_amount=0, damaged=0):
         super().__init__(product_type, product_name, price, expiration, quantity, defective, defective_amount)
         self.damaged = damaged
-        self._quantity -= damaged
+
+    @property
+    def quantity(self):
+        if self._quantity == 0:
+            raise NotAvailable
+        else:
+            self._quantity = self._quantity - self.damaged
+            return self._quantity
 
 
 bread = Product('bread', 'baton', '55', date(2021, 8, 25), quantity=5, defective=True)
@@ -176,15 +196,17 @@ cheese = Food('cheese', 'bri', '47.95', date(2021, 8, 29))
 
 # gas_bottle = FlammableProducts('gas_bottle', 'AAA-79', '249.99', date(2025, 1, 1), quantity=3)
 
-vine = ExciseProducts('vine', 'Moet', '1790', date(2022, 1, 1), 2)
+vine = ExciseProducts('vine', 'Moet', '1790', date(2022, 1, 1), 5)
 
 # print(vine.quantity)
 
 vase = BreakableProducts('vase', 'deep vase', '179.9', date(2030, 1, 1), quantity=5, damaged=4)
 
-# print(vase.quantity)
+print(vase.quantity)
 
-eggs = PerishableProducts('egg', 'chicken eggs', '2.15', date(2021, 8, 22))
+eggs = PerishableProducts('egg', 'chicken eggs', '2.15', date(2021, 8, 19))
 
-# eggs.set_sale()
 # print(eggs.price)
+# print(vase)
+
+# print(vine.quantity)
